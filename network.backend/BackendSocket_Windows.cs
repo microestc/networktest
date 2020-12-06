@@ -24,8 +24,8 @@ namespace Network.Backend
 
         public void Listen(CancellationToken stoppingToken)
         {
-            IPHostEntry host = Dns.GetHostEntry(_appSettings.HostName);
-            IPAddress ipaddr = host.AddressList[0];
+            var enaddr = IPAddress.TryParse(_appSettings.HostName, out var ipaddr);
+            if (!enaddr) throw new NotSupportedException("the hostname is incorrect.");
             IPEndPoint endpoint = new IPEndPoint(ipaddr, _appSettings.Port);
 
             Socket socket = new Socket(ipaddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -57,7 +57,7 @@ namespace Network.Backend
             var id = Interlocked.Increment(ref _sessionid);
             Socket socket = (Socket)result.AsyncState;
             socket.EndAccept(out var buffer, out var transferred, result);
-            _logger.LogInformation("{0} -> the connection {1} ,Accepted data transferred is {2} byte.", DateTimeOffset.Now.ToString(), id, transferred);
+            _logger.LogInformation("the connection {0} ,Accepted data transferred is {1} byte.", id, transferred);
         }
     }
 }
