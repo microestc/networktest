@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace network.frontend
+namespace Network.Frontend
 {
     public class Program
     {
@@ -18,6 +18,8 @@ namespace network.frontend
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddTransient<FrontendSocket>();
+                    services.AddOptions<AppSettings>("AppSettings");
                     services.AddHostedService<Worker>();
                 });
     }

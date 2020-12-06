@@ -4,6 +4,8 @@
     {
         public string HostName { get; set; }
 
-        public string Port { get; set; }
+        public int Port { get; set; }
+
+        public int Timeout { get; set; } = 15;
     }
 }

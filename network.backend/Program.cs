@@ -1,11 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace network.backend
+namespace Network.Backend
 {
     public class Program
     {
@@ -18,6 +14,8 @@ namespace network.backend
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    services.AddSingleton<BackendSocket>();
+                    services.AddOptions<AppSettings>("AppSettings");
                     services.AddHostedService<Worker>();
                 });
     }

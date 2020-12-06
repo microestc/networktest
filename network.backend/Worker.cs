@@ -1,29 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace network.backend
+namespace Network.Backend
 {
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
+        private readonly BackendSocket _backend;
 
-        public Worker(ILogger<Worker> logger)
+        public Worker(ILogger<Worker> logger, BackendSocket backend)
         {
             _logger = logger;
+            _backend = backend;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-                await Task.Delay(1000, stoppingToken);
-            }
+            _backend.Listen(stoppingToken);
+            return Task.CompletedTask;
         }
     }
 }
