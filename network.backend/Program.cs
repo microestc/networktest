@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,11 @@ namespace Network.Backend
                         .SetupExtensions(s => s.RegisterConfigSettings(configuration))
                         .LoadConfigurationFromSection(configuration)
                         .GetCurrentClassLogger();
-                    services.AddSingleton<BackendSocket>();
+
+                    if (OperatingSystem.IsWindows())
+                        services.AddSingleton<IBackendSocket, WindowsBackendSocket>();
+                    else
+                        services.AddSingleton<IBackendSocket, UnixBackendSocket>();
                     services.Configure<AppSettings>(configuration.GetSection("AppSettings"));
                     services.AddHostedService<Worker>();
                     services.AddLogging(builder =>

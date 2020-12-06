@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Versioning;
 using System.Threading;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Network.Backend
 {
-    public class BackendSocket
+    [SupportedOSPlatform("Windows")]
+    public class WindowsBackendSocket : IBackendSocket
     {
         private static ManualResetEvent ManualResetEventTask = new ManualResetEvent(false);
-        private readonly ILogger<BackendSocket> _logger;
+        private readonly ILogger<WindowsBackendSocket> _logger;
         private readonly AppSettings _appSettings;
         private static int _sessionid = 0;
 
-        public BackendSocket(ILogger<BackendSocket> logger, IOptionsMonitor<AppSettings> appSettingsOptions)
+        public WindowsBackendSocket(ILogger<WindowsBackendSocket> logger, IOptionsMonitor<AppSettings> appSettingsOptions)
         {
             _logger = logger;
             _appSettings = appSettingsOptions.CurrentValue;

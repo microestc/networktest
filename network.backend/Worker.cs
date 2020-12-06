@@ -8,9 +8,9 @@ namespace Network.Backend
     public class Worker : BackgroundService
     {
         private readonly ILogger<Worker> _logger;
-        private readonly BackendSocket _backend;
+        private readonly IBackendSocket _backend;
 
-        public Worker(ILogger<Worker> logger, BackendSocket backend)
+        public Worker(ILogger<Worker> logger, IBackendSocket backend)
         {
             _logger = logger;
             _backend = backend;
