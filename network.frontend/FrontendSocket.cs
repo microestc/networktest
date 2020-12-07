@@ -24,8 +24,8 @@ namespace Network
         {
             try
             {
-                IPHostEntry host = Dns.GetHostEntry(_appSettings.HostName);
-                IPAddress ipaddr = host.AddressList[0];
+                var enaddr = IPAddress.TryParse(_appSettings.HostName, out var ipaddr);
+                if (!enaddr) throw new NotSupportedException("the hostname is incorrect.");
                 IPEndPoint endpoint = new IPEndPoint(ipaddr, _appSettings.Port);
 
                 Socket socket = new Socket(ipaddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
