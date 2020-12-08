@@ -11,12 +11,9 @@ namespace Network.Backend
     [SupportedOSPlatform("Linux")]
     public class UnixBackendSocket : IBackendSocket
     {
-        private static ManualResetEvent ManualResetEventTask = new ManualResetEvent(false);
+        private static Semaphore ManualResetEventTask = new Semaphore(1, 100);
         private readonly ILogger<UnixBackendSocket> _logger;
         private readonly AppSettings _appSettings;
-        private static int _sessionid = 0;
-        private Semaphore AcceptedClients;
-        private Socket socket;
 
         public UnixBackendSocket(ILogger<UnixBackendSocket> logger, IOptionsMonitor<AppSettings> appSettingsOptions)
         {
@@ -30,7 +27,7 @@ namespace Network.Backend
             if (!enaddr) throw new NotSupportedException("the hostname is incorrect.");
             IPEndPoint endpoint = new IPEndPoint(ipaddr, _appSettings.Port);
 
-            socket = new Socket(ipaddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var socket = new Socket(ipaddr.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             try
             {
                 socket.Bind(endpoint);
@@ -38,14 +35,16 @@ namespace Network.Backend
 
                 while (!stoppingToken.IsCancellationRequested)
                 {
-                    ManualResetEventTask.Reset();
                     var acceptEventArg = new SocketAsyncEventArgs();
                     acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(AcceptEventArgCompleted);
 
-                    var accepted = ManualResetEventTask.WaitOne(_appSettings.Timeout * 1000);
+                    var accepted = ManualResetEventTask.WaitOne();
                     if (!accepted) _logger.LogError("the connection is timeout.");
                     accepted = socket.AcceptAsync(acceptEventArg);
-                    
+                    if (!accepted)
+                    {
+                        ProcessAccept(acceptEventArg);
+                    }
                 }
 
             }
@@ -57,9 +56,24 @@ namespace Network.Backend
 
         private void AcceptEventArgCompleted(object sender, SocketAsyncEventArgs e)
         {
-            ManualResetEventTask.Set();
+
         }
 
+        private void ProcessAccept(SocketAsyncEventArgs e)
+        {
 
+            var readWriteEventArg = new SocketAsyncEventArgs();
+            readWriteEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
+            bool raiseEvent = e.AcceptSocket.ReceiveAsync(readWriteEventArg);
+            if (!raiseEvent)
+            {
+
+            }
+        }
+
+        void IO_Completed(object sender, SocketAsyncEventArgs e)
+        {
+
+        }
     }
 }
