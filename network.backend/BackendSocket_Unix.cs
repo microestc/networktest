@@ -11,7 +11,7 @@ namespace Network.Backend
     [SupportedOSPlatform("Linux")]
     public class UnixBackendSocket : IBackendSocket
     {
-        private static Semaphore ManualResetEventTask = new Semaphore(1, 100);
+        private static Semaphore SemaphoreTask = new Semaphore(1, 100);
         private readonly ILogger<UnixBackendSocket> _logger;
         private readonly AppSettings _appSettings;
 
@@ -36,17 +36,16 @@ namespace Network.Backend
                 while (!stoppingToken.IsCancellationRequested)
                 {
                     var acceptEventArg = new SocketAsyncEventArgs();
-                    acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(AcceptEventArgCompleted);
+                    acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(Accepting);
 
-                    var accepted = ManualResetEventTask.WaitOne();
+                    var accepted = SemaphoreTask.WaitOne();
                     if (!accepted) _logger.LogError("the connection is timeout.");
-                    accepted = socket.AcceptAsync(acceptEventArg);
-                    if (!accepted)
+                    var status = socket.AcceptAsync(acceptEventArg);
+                    if (!status)
                     {
-                        ProcessAccept(acceptEventArg);
+                        AcceptCompleted(acceptEventArg);
                     }
                 }
-
             }
             catch (Exception e)
             {
@@ -54,26 +53,16 @@ namespace Network.Backend
             }
         }
 
-        private void AcceptEventArgCompleted(object sender, SocketAsyncEventArgs e)
+        private void Accepting(object sender, SocketAsyncEventArgs e)
         {
 
         }
 
-        private void ProcessAccept(SocketAsyncEventArgs e)
+        private void AcceptCompleted(SocketAsyncEventArgs e)
         {
 
-            var readWriteEventArg = new SocketAsyncEventArgs();
-            readWriteEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
-            bool raiseEvent = e.AcceptSocket.ReceiveAsync(readWriteEventArg);
-            if (!raiseEvent)
-            {
-
-            }
+            
         }
 
-        void IO_Completed(object sender, SocketAsyncEventArgs e)
-        {
-
-        }
     }
 }
