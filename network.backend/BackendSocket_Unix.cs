@@ -55,14 +55,33 @@ namespace Network.Backend
 
         private void Accepting(object sender, SocketAsyncEventArgs e)
         {
-
+            AcceptCompleted(e);
         }
 
         private void AcceptCompleted(SocketAsyncEventArgs e)
         {
-
-            
+            if(e.SocketError == SocketError.Success)
+            {
+                _logger.LogInformation("接收客户端请求成功,连接已建立,接收到数据 {0}.",e.BytesTransferred);
+                CloseSocket(e);
+            }
         }
 
+        private void CloseSocket(SocketAsyncEventArgs e)
+        {
+            try
+            {
+                e.AcceptSocket.Shutdown(SocketShutdown.Both);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            finally
+            {
+                e.AcceptSocket.Close();
+                SemaphoreTask.Release();
+            }
+        }
     }
 }
