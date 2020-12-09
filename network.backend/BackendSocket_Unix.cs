@@ -38,8 +38,7 @@ namespace Network.Backend
                     var acceptEventArg = new SocketAsyncEventArgs();
                     acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(Accepting);
 
-                    var accepted = SemaphoreTask.WaitOne();
-                    if (!accepted) _logger.LogError("the connection is timeout.");
+                    SemaphoreTask.WaitOne();
                     var status = socket.AcceptAsync(acceptEventArg);
                     if (!status)
                     {
