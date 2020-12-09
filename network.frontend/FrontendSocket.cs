@@ -53,6 +53,7 @@ namespace Network
                 Socket socket = (Socket)result.AsyncState;
                 socket.EndConnect(result);
                 var id = Interlocked.Increment(ref _sessionid);
+                Interlocked.CompareExchange(ref _sessionid, 1, int.MaxValue);
                 _logger.LogInformation("the connect {0},socket connected to {1}.", id, socket.RemoteEndPoint.ToString());
             }
             catch (Exception e)
