@@ -11,7 +11,7 @@ namespace Network.Backend
     [SupportedOSPlatform("Linux")]
     public class UnixBackendSocket : IBackendSocket
     {
-        private static Semaphore SemaphoreTask = new Semaphore(1, 100);
+        private static Semaphore SemaphoreTask = new Semaphore(100, 100);
         private readonly ILogger<UnixBackendSocket> _logger;
         private readonly AppSettings _appSettings;
 
