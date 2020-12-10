@@ -8,11 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Network.Backend
 {
-    public class BackendSocket
+    public class WindowsBackendSocket
     {
         public static ManualResetEvent ManualResetEventTask = new ManualResetEvent(false);
         private static JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions { WriteIndented = true };
-        private readonly ILogger<BackendSocket> _logger;
+        private readonly ILogger<WindowsBackendSocket> _logger;
 
         public void Listen()
         {
